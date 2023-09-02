@@ -7,8 +7,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-EXPOSE 50051
-
 COPY . /app
 
 RUN apt-get update && \
@@ -24,13 +22,6 @@ RUN wget "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin
 
 RUN gradle build
 
-CMD ["gradle", "execute"]
+ARG clientArgs
 
-
-
-
-
-
-
-
-
+CMD ["gradle", "execute", "--args=-PclientArgs=${clientArgs}"]

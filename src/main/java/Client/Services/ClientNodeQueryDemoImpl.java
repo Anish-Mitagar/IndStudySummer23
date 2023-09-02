@@ -21,6 +21,9 @@ public class ClientNodeQueryDemoImpl extends PingServiceGrpc.PingServiceImplBase
         NodeInfo nodeInfo = request.getNodeInfo();
         int prevClientNodeID = nodeInfo.getId();
 
+        // Log the message the server has received
+        System.out.println("Received ping request from ClientNode " + prevClientNodeID + " to ClientNode " + this.clientNode.getId());
+
         if (this.clientNode.isVisited()) {
             System.out.println("ClientNode " + this.clientNode.getId() + " already visited");
         } else {

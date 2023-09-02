@@ -12,12 +12,16 @@ public class ClientNodeMap {
 
     private HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
 
+    private HashMap<Integer, String> containerNames = new HashMap<>();
+
     public ClientNodeMap (ArrayList<int[]> idPortPairs) {
         for (int i = 0; i < idPortPairs.size(); i++) {
             int[] pair = idPortPairs.get(i);
             this.idsToPorts.put(pair[0], pair[1]);
             this.portsToIds.put(pair[1], pair[0]);
             this.map.put(pair[0], new ArrayList<>());
+            String containerName = "server-"+pair[0];
+            containerNames.put(pair[0], containerName);
         }
     }
 
@@ -46,4 +50,6 @@ public class ClientNodeMap {
     public HashMap<Integer, ArrayList<Integer>> getMap() {
         return this.map;
     }
+
+    public HashMap<Integer, String> getContainerNames() { return this.containerNames; }
 }

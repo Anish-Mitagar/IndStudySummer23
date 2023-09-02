@@ -8,6 +8,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.io.IOException;
 import java.sql.Connection;
@@ -62,16 +65,34 @@ public class ClientNode {
         for (int i = 0; i < this.map.getMap().get(this.id).size(); i++) {
             int neighborId = this.map.getMap().get(this.id).get(i);
             int neighborPort = this.map.getIdsToPorts().get(neighborId);
+            String neighborContainerName = this.map.getContainerNames().get(neighborId);
+            //Docker change
+            //String neighborIPAddress = getContainerIpAddress(neighborContainerName);
 
+            System.out.println("Connecting to Container: "+neighborContainerName+ ", and port: "+neighborPort);
+
+            //** change neighborIPAddress to "localhost" if conducting an experiment
+            //on a single machine only
+            //Docker change
             ManagedChannel messenger = ManagedChannelBuilder
-                    .forAddress("localhost", neighborPort)
+                    .forAddress(neighborContainerName, neighborPort)
                     .usePlaintext()
                     .build();
+
+            //localhost version
+            /*ManagedChannel messenger = ManagedChannelBuilder
+                    .forAddress("localhost", neighborPort)
+                    .usePlaintext()
+                    .build();*/
 
             this.messengers.add(messenger);
             this.idToMessenger.put(neighborId, messenger);
 
-            System.out.println("Client Node " + this.id + " started messenger for port: " + neighborPort + ", neighborId: " + neighborId);
+            //Docker change
+            System.out.println("Client Node " + this.id + " started messenger for Container: " + neighborContainerName + " port: " + neighborPort + ", neighborId: " + neighborId);
+
+            //localhost version
+            //System.out.println("Client Node "+this.id+" started messenger for port: "+neighborPort+", neighborID: "+neighborId);
 
         }
     }
@@ -133,6 +154,17 @@ public class ClientNode {
 
         this.total = (this.end - this.start)/1000;
 
+    }
+
+    private String getContainerIpAddress(String containerName) {
+        try {
+            // Use the container name as the hostname to resolve to its IP address
+            InetAddress inetAddress = InetAddress.getByName(containerName);
+            return inetAddress.getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return "Unknown";
     }
 
     public HashMap<Integer, ManagedChannel> getIdToMessenger() {
