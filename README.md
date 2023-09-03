@@ -147,3 +147,50 @@ To set up the database for this setup run: ```source DB_Setup/setup.sh```
 In this experimention setup, location of the database rows matter and the rows will be located in different physical locations. Every ```ClientNode```/Cockroach DB Server Node pair may located in a Local Area Network, or a Wide Area Network. We may load in our own toy databases, or a slightly modified version [LDBC SNB database](http://ldbcouncil.org/ldbc_snb_docs/schema.pdf). The vast majority of gRPC communication should take place between the ```ClientNode``` instances rather than between the CockroachDB Nodes. in the CockroachDB Cluster.
 
 To set up the database for this setup run: ```TBD```
+
+## How to run on Docker
+
+To run the above experiment, follow these steps:
+
+1. **Clone the Repository:** git pull the files from the branch.
+
+2. **Install Docker Desktop (Recommended):** Highly recommend installing Docker Desktop, as it simplifies container management. If you don't use Docker Desktop, you'll have to manually connect to the Docker containers from the terminal to access logs and check if the experiment runs successfully.
+
+3. **Make the Start Script Executable:** Run the following command in your terminal to make the start script executable:
+
+    ```bash
+    chmod +x multi-container-start.sh
+    ```
+
+4. **Run the Start Script:** Execute the start script with the following command:
+
+    ```bash
+    ./multi-container-start.sh
+    ```
+
+   This start script will set up the following:
+
+    * Docker network called IndStudyNetwork.
+    * Creation of a Docker image called "node image."
+    * Startup of 6 Docker containers.
+    * Note: It might take roughly 2 minutes for Gradle to set up within the containers.
+
+5. **Check Docker Desktop:** Open Docker Desktop; you should see 6 running containers named server-1, server-2, ..., server-6.
+
+6. **Inspect Container Logs:** Click on server-1 and check its logs. Once Gradle is set up, the execution begins at server-1.
+
+7. **Ping Other Nodes:** server-1 should ping all other nodes to start up their gRPC server and client stubs.
+
+8. **Experiment Countdown:** server-1 then waits for 2 minutes with a countdown done in logs before it begins the experiment.
+
+9. **Verify Logs:** Once the experiment is done, check the logs of every Docker container to confirm if the setup has fired pings and database queries as expected.
+
+10. **Shutdown Containers:** Once the experiment is done, server-1 container shuts down automatically, but you need to manually shut down the other 5 running Docker containers.
+
+11. **Run the Shutdown Script:** In your terminal, run the following command to stop all running Docker containers, remove the containers, images, and networks established during the experiment:
+
+    ```bash
+    ./multi-container-shutdown.sh
+    ```
+
+These steps will help you run the Docker cluster setup experiment successfully.
