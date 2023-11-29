@@ -25,6 +25,7 @@ docker network rm IndStudyNetwork
 cockroach sql --insecure --host=localhost:26257 <<EOF
 USE socialnetwork;
 DROP TABLE IF EXISTS temp_message;
+DROP TABLE IF EXISTS temp_forum;
 DROP TABLE IF EXISTS temp_person;
 \q
 EOF

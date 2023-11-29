@@ -113,6 +113,36 @@ public class ShortReadQuery5 implements Runnable {
                             Future<String> future = executor.submit(new gRPC(serverSubquery, 1, this.localId, this.neighbors.get(i), this.messageID, this.queryID, this.temp_message_table_name, this.idToChannel));
                             message_futures.add(future);
                         }
+
+                        //Wait for acknowledgement from other nodes
+                        List<String> message_results = new ArrayList<>();
+                        if(this.neighbors.size() > 0) {
+                            for(Future<String> fut : message_futures) {
+                                try {
+                                    message_results.add(fut.get());
+                                } catch (InterruptedException | ExecutionException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        System.out.println("I Client Node " + this.localId + " had all message threads return");
+
+                        //Fetch person.id from temp table
+                        String fetch_person_id = "SELECT * FROM "+temp_message_table_name;
+                        try {
+                            ResultSet fetchSet = statement.executeQuery(fetch_person_id);
+                            if(fetchSet.next()) {
+                                this.creatorPersonID = fetchSet.getLong("CreatorPersonId");
+                                System.out.println("PersonID: "+creatorPersonID);
+                            }
+                            else {
+                                System.out.println("Message row NOT found in temp message table");
+                            }
+                        }
+                        catch(SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 catch(Exception e) {
@@ -125,37 +155,6 @@ public class ShortReadQuery5 implements Runnable {
             e.printStackTrace();
         }
 
-        //Wait for acknowledgement from other nodes
-        List<String> message_results = new ArrayList<>();
-        if(this.neighbors.size() > 0) {
-            for(Future<String> fut : message_futures) {
-                try {
-                    message_results.add(fut.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        System.out.println("I Client Node " + this.localId + " had all message threads return");
-
-        //Fetch person.id from temp table
-        String fetch_person_id = "SELECT * FROM "+temp_message_table_name;
-        try {
-            Statement statement = connection.createStatement();
-            statement.execute("USE socialnetwork");
-            ResultSet fetchSet = statement.executeQuery(fetch_person_id);
-            if(fetchSet.next()) {
-                this.creatorPersonID = fetchSet.getLong("CreatorPersonId");
-                System.out.println("PersonID: "+creatorPersonID);
-            }
-            else {
-                System.out.println("Message row NOT found in temp message table");
-            }
-        }
-        catch(SQLException e) {
-            e.printStackTrace();
-        }
 
         //Create temp person table
         //Fetch person.firstName and person.lastName locally
@@ -185,46 +184,47 @@ public class ShortReadQuery5 implements Runnable {
                     Future<String> future = executor.submit(new gRPC(person_subquery, 2, this.localId, this.neighbors.get(i), this.messageID, this.queryID, this.temp_person_table_name, this.idToChannel));
                     person_futures.add(future);
                 }
-            }
-        }
-        catch(SQLException e) {
-            e.printStackTrace();
-        }
 
-        //Wait for acknowledgement from other nodes\
-        List<String> person_results = new ArrayList<>();
-        if(this.neighbors.size() > 0) {
-            for(Future<String> fut : person_futures) {
-                try {
-                    person_results.add(fut.get());
+                //Wait for acknowledgement from other nodes\
+                List<String> person_results = new ArrayList<>();
+                if(this.neighbors.size() > 0) {
+                    for(Future<String> fut : person_futures) {
+                        try {
+                            person_results.add(fut.get());
+                        }
+                        catch(InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-                catch(InterruptedException | ExecutionException e) {
+
+                System.out.println("I Client Node " + this.localId + " had all person threads return");
+
+                //Fetch person.firstName and person.lastName from the person temp table
+                String fetch_person_name = "SELECT * FROM "+temp_person_table_name;
+                try {
+                    ResultSet nameSet = statement.executeQuery(fetch_person_name);
+                    if(nameSet.next()) {
+                        this.firstName = nameSet.getString("firstName");
+                        this.lastName = nameSet.getString("lastName");
+                        System.out.println("First Name: "+this.firstName);
+                        System.out.println("Last Name: "+this.lastName);
+                    }
+                    else {
+                        System.out.println("Person row NOT found in temp message table");
+                    }
+                }
+                catch(SQLException e) {
                     e.printStackTrace();
                 }
             }
-            this.executor.shutdown();
-        }
-
-        System.out.println("I Client Node " + this.localId + " had all person threads return");
-
-        //Fetch person.firstName and person.lastName from the person temp table
-        String fetch_person_name = "SELECT * FROM "+temp_person_table_name;
-        try {
-            Statement statement = connection.createStatement();
-            statement.execute("USE socialnetwork");
-            ResultSet nameSet = statement.executeQuery(fetch_person_name);
-            if(nameSet.next()) {
-                this.firstName = nameSet.getString("firstName");
-                this.lastName = nameSet.getString("lastName");
-                System.out.println("First Name: "+this.firstName);
-                System.out.println("Last Name: "+this.lastName);
-            }
-            else {
-                System.out.println("Person row NOT found in temp message table");
-            }
         }
         catch(SQLException e) {
             e.printStackTrace();
+        }
+
+        if (this.executor != null && !this.executor.isShutdown()) {
+            this.executor.shutdown();
         }
 
         // OUTPUT

@@ -2,8 +2,10 @@ package ClientDocker;
 
 import ClientDocker.Query.QueryDemoNew;
 import ClientDocker.Query.ShortReadQuery5;
+import ClientDocker.Query.ShortReadQuery6;
 import ClientDocker.Services.ClientNodeQueryDemoImpl;
 import ClientDocker.Services.ShortReadQuery5Impl;
+import ClientDocker.Services.ShortReadQuery6Impl;
 import ClientDocker.Utils.ClientNodeMap;
 import ClientDocker.Utils.DBConnection;
 import io.grpc.ManagedChannel;
@@ -107,17 +109,24 @@ public class ClientNode {
         System.out.println("Client Node " + this.id + " has shut down all messengers");
     }
 
-    public void startReceiver() throws IOException {
+    public void startReceiver(int queryID) throws IOException {
         //Receiver for basic SELECT statement
         /*
         this.receiver = ServerBuilder.forPort(this.receiverPort)
                 .addService(new ClientNodeQueryDemoImpl(this))
                 .build();
         */
-        //Receiver for Query 5
-        this.receiver = ServerBuilder.forPort(this.receiverPort)
-                .addService(new ShortReadQuery5Impl(this))
-                .build();
+        if(queryID == 5) {
+            this.receiver = ServerBuilder.forPort(this.receiverPort)
+                    .addService(new ShortReadQuery5Impl(this))
+                    .build();
+        }
+        //Receiver for Query 6
+        if(queryID == 6) {
+            this.receiver = ServerBuilder.forPort(this.receiverPort)
+                    .addService(new ShortReadQuery6Impl(this))
+                    .build();
+        }
 
         this.receiver.start();
         this.receiverRunning = true;
@@ -178,8 +187,13 @@ public class ClientNode {
         if (this.justCameFromClientNodeId != -1) {
             neighbors.remove(Integer.valueOf(this.justCameFromClientNodeId));
         }
-
-        Thread newThread = new Thread(new ShortReadQuery5(getDBConnection(), this.id, neighbors, getIdToMessenger(), 0, messageID));
+        Thread newThread = new Thread();
+        if(queryID == 5) {
+            newThread = new Thread(new ShortReadQuery5(getDBConnection(), this.id, neighbors, getIdToMessenger(), 0, messageID));
+        }
+        else if(queryID == 6) {
+            newThread = new Thread(new ShortReadQuery6(getDBConnection(), this.id, neighbors, getIdToMessenger(), 0, messageID));
+        }
 
         newThread.start();
 

@@ -12,6 +12,7 @@ message Request {
   int32 person_id = 5;
   int32 query_id = 6;
   string temp_table_name = 7;
+  int32 forum_id = 8;
 }
 
 message Response {

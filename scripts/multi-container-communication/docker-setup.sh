@@ -19,7 +19,7 @@ do
   CONTAINER_NAME=${!CONTAINER_NAME_VAR}
 
   # Build and run container with index as argument
-  docker run -d --network IndStudyNetwork --name $CONTAINER_NAME -e CONTAINER_NAME=$CONTAINER_NAME -e clientArgs="$i" -e queryArgs=5 -e messageArgs=545 -p 5005$i:5005$i nodeimage
+  docker run -d --network IndStudyNetwork --name $CONTAINER_NAME -e CONTAINER_NAME=$CONTAINER_NAME -e clientArgs="$i" -e queryArgs=6 -e messageArgs=545 -p 5005$i:5005$i nodeimage
 done
 
 #Single Docker Container for testing
