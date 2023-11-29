@@ -46,6 +46,14 @@ CREATE TABLE socialnetwork.person (
     INDEX (LocationCityId)
 );
 
+CREATE TABLE socialnetwork.forum (
+    creationDate timestamp with time zone NOT NULL,
+    id bigint PRIMARY KEY,
+    title varchar(256) NOT NULL,
+    ModeratorPersonId bigint, -- can be null as its cardinality is 0..1
+    serverId int NOT NULL
+);
+
 INSERT INTO socialnetwork.tmptable VALUES (65, 1, 'Bob'), (66, 2, 'Charlie'), (67, 3, 'Duncan'), (68, 4, 'Emily'), (69, 5, 'Frank'), (70, 6, 'George');
 
 INSERT INTO socialnetwork.messages VALUES (65, 1, 'Hello, I am your debt collector'), (65, 1, 'You cant escape me'), (66, 2, 'You still owe me $2000'), (66, 2, 'I know where you live');
@@ -70,6 +78,18 @@ VALUES
     ('2010-01-17 08:54:00.3+00', 218, 'Mike', 'Wilson', 'female', '1984-05-23', '24.53.139.223', 'Internet Explorer', 883, 'en;es', 'Mike218@gmail.com;Mike218@yahoo.com;Mike218@yours.com;Mike218@gmx.com', 1),
     ('2010-02-01 08:24:22.124+00', 251, 'Ion', 'Bologan', 'female', '1983-11-21', '91.198.217.1', 'Chrome', 1223, 'ru;en', 'Ion251@gmx.com;Ion251@netfingers.com;Ion251@gmail.com', 4);
 
+-- Insert data into the forum table
+INSERT INTO socialnetwork.forum (creationDate, id, title, moderatorPersonId, serverId)
+VALUES
+    ('2010-01-03 15:10:41.499+00', 0, 'Wall of Hossein Forouhar', 14, 3),
+    ('2010-01-19 13:51:20.863+00', 38, 'Wall of Wojciech Ciesla', 27, 4),
+    ('2010-01-28 04:16:24.101+00', 187, 'Wall of Abhishek Singh', 113, 1),
+    ('2010-02-17 03:21:48.348+00', 188, 'Wall of Eduardo Gonzalez', 137, 3),
+    ('2010-01-17 08:54:10.3+00', 230, 'Wall of Mike Wilson', 218, 2),
+    ('2010-02-01 08:24:32.124+00', 232, 'Wall of Ion Bologan', 251, 1),
+    ('2010-02-17 21:34:44.561+00', 565, 'Wall of Vinod Kumar', 682, 4);
+
+
 GRANT ALL PRIVILEGES ON TABLE socialnetwork.* TO anish;
 
 SELECT * FROM socialnetwork.tmptable;
@@ -79,3 +99,5 @@ SELECT * FROM socialnetwork.messages;
 SELECT * FROM socialnetwork.message;
 
 SELECT * FROM socialnetwork.person;
+
+SELECT * FROM socialnetwork.forum;
