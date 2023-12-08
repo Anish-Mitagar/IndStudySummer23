@@ -46,6 +46,12 @@ CREATE TABLE socialnetwork.person (
     INDEX (LocationCityId)
 );
 
+Create TABLE socialnetwork.comment (
+    id bigint PRIMARY KEY,
+    content varchar(256) NOT NULL,
+    creationDate timestamp with time zone NOT NULL
+)
+
 INSERT INTO socialnetwork.tmptable VALUES (65, 1, 'Bob'), (66, 2, 'Charlie'), (67, 3, 'Duncan'), (68, 4, 'Emily'), (69, 5, 'Frank'), (70, 6, 'George');
 
 INSERT INTO socialnetwork.messages VALUES (65, 1, 'Hello, I am your debt collector'), (65, 1, 'You cant escape me'), (66, 2, 'You still owe me $2000'), (66, 2, 'I know where you live');
@@ -79,3 +85,5 @@ SELECT * FROM socialnetwork.messages;
 SELECT * FROM socialnetwork.message;
 
 SELECT * FROM socialnetwork.person;
+
+SELECT * FROM socialnetwork.comment;
