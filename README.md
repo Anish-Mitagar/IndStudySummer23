@@ -225,3 +225,9 @@ To run the Query-5 experiment, follow these steps:
    ./multi-container-shutdown.sh
 
 These steps will guide you through the process of running the experiment. Be sure to follow them in sequence for a successful execution.
+
+### Tips for running commands on Windows
+
+Download Git
+
+Open **Git Bash** in the project directory, and run the same command.
