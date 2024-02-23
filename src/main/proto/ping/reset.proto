@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package reset;
+option java_package = "com.proto.reset";
+option java_multiple_files = true;
+
+message NodeInfo {
+  int32 id = 1;
+  bool new_state = 2;
+}
+
+message ResetRequest {
+  NodeInfo nodeInfo = 1;
+}
+
+message ResetResponse {
+  string result = 1;
+}
+
+service ResetService {
+  rpc ResetQuery(ResetRequest) returns (ResetResponse) {};
+}

@@ -1,7 +1,9 @@
 package ClientLocal;
 
 import ClientLocal.Query.QueryDemoNew;
+import ClientLocal.Query.ResetQuery;
 import ClientLocal.Services.ClientNodeQueryDemoImpl;
+import ClientLocal.Services.ResetQueryImpl;
 import ClientLocal.Utils.ClientNodeMap;
 import ClientLocal.Utils.DBConnection;
 import io.grpc.ManagedChannel;
@@ -87,6 +89,7 @@ public class ClientNode {
     public void startReceiver() throws IOException {
         this.receiver = ServerBuilder.forPort(this.receiverPort)
                 .addService(new ClientNodeQueryDemoImpl(this))
+                .addService(new ResetQueryImpl(this))
                 .build();
         this.receiver.start();
         this.receiverRunning = true;
@@ -121,7 +124,7 @@ public class ClientNode {
             neighbors.remove(Integer.valueOf(this.justCameFromClientNodeId));
         }
 
-        Thread newThread = new Thread(new QueryDemoNew(getDBConnection(), this.id, neighbors, getIdToMessenger(), 1000));
+        Thread newThread = new Thread(new QueryDemoNew(getDBConnection(), this.id, neighbors, getIdToMessenger(), 0));
 
         newThread.start();
 
@@ -132,6 +135,30 @@ public class ClientNode {
         this.end = System.nanoTime();
 
         this.total = (this.end - this.start)/1000;
+
+    }
+
+    public void broadcastReset(boolean new_state) throws InterruptedException{
+
+        if (this.visited == new_state) {
+            return;
+        }
+
+        ArrayList<Integer> neighbors = this.map.getMap().get(this.id);
+
+        if (this.justCameFromClientNodeId != -1) {
+            neighbors.remove(Integer.valueOf(this.justCameFromClientNodeId));
+        }
+
+        Thread newThread = new Thread(new ResetQuery(this, this.id, neighbors, getIdToMessenger(), new_state, 0));
+
+        newThread.start();
+
+        System.out.println("ClientNode " + this.id + " broadcasting reset!");
+
+        newThread.join();
+
+        System.out.println("ClientNode " + this.id + " finished resetting!");
 
     }
 
@@ -159,10 +186,10 @@ public class ClientNode {
     public void setJustCameFromClientNodeId(int id) { this.justCameFromClientNodeId = id; }
 
     public long getTotalTime() { return this.total; }
-    public void reset() {
+    public void reset(boolean new_state) {
         this.start = -1;
         this.end = -1;
         this.total = -1;
-        this.visited = false;
+        this.visited = new_state;
     }
 }

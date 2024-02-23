@@ -28,6 +28,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
+
+    // https://mvnrepository.com/artifact/org.knowm.xchart/xchart
+    implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.7'
 }
 
 protobuf {
