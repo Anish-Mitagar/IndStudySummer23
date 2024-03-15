@@ -70,9 +70,11 @@ public class DockerMain {
         int queryID = Integer.parseInt(queryArgs);
         int messageID = Integer.parseInt(messageArgs);
         System.out.println("server ID: "+serverID);
+        System.out.println("query ID: "+queryID);
+        System.out.println("message ID: "+messageID);
         int portNumber = clientNodeMap.getIdsToPorts().get(serverID);
         //Docker Change
-        int countDown = 30; // 120 seconds countdown
+        int countDown = 30; // 30 seconds countdown
         //Testing Change
         //int countDown = 0;
 
@@ -92,7 +94,7 @@ public class DockerMain {
         node.connectDB();
         //Start a server stub for the node
         try {
-            node.startReceiver();
+            node.startReceiver(queryID);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,7 +110,7 @@ public class DockerMain {
                 --countDown;
             }
             System.out.println("Beginning execution ....");
-            if(queryID == 5) {
+            if(queryID == 5 || queryID == 6) {
                 node.executeQueryFive(true, queryID, messageID);
                 System.out.println("Total time: " + node.getTotalTime() + " microseconds");
             }
